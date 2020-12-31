@@ -26,7 +26,7 @@ const Input = ({label, ...props}) => {
         left: 14,
         top: animation.interpolate({
             inputRange: [0, 1],
-            outputRange: [25, 0],
+            outputRange: [23, 0],
         }),
         fontSize: animation.interpolate({
             inputRange: [0, 1],
@@ -45,7 +45,7 @@ const Input = ({label, ...props}) => {
         fontSize: 14,
         fontFamily: 'Montserrat-Medium',
         paddingHorizontal: 14,
-        height: 50,
+        height: 48,
         color: Warna.dark,
         position: 'relative',
     }

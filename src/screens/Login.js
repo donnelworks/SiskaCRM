@@ -5,26 +5,45 @@ import LogoCrm from '../assets/images/logo-crm.svg';
 import axios from 'axios';
 import { Url } from '../utils/Url';
 import { Warna } from '../utils/Warna';
+import { Formik } from 'formik';
 
 const Login = ({navigation}) => {
     const [loading, setLoading] = useState(false);
     const [username, setUsername] = useState("");
     const [pass, setPass] = useState("");
 
-    const proses = () => {
-        setLoading(true);
-        const data = { username, pass };
+    // const proses = () => {
+    //     setLoading(true);
+    //     const data = { username, pass };
 
-        axios.post(Url.api + '/login/proses', data)
+    //     axios.post(Url.api + '/login/proses', data)
+    //     .then(res => {
+    //         setUsername("");
+    //         setPass("");
+    //         setLoading(false);
+    //         navigation.navigate('Home');
+    //     })
+    //     .catch(err => {
+    //         setLoading(false);
+    //         if (username == "" || pass == "") {
+    //             alert('Data belum lengkap');
+    //         } else {
+    //             alert('Akun tidak terdaftar');
+    //         }
+    //     });
+    // }
+
+    const submit = (values, actions) => {
+        setLoading(true);
+        axios.post(Url.api + '/login/proses', values)
         .then(res => {
-            setUsername("");
-            setPass("");
             setLoading(false);
+            actions.resetForm();
             navigation.navigate('Home');
         })
         .catch(err => {
             setLoading(false);
-            if (username == "" || pass == "") {
+            if (values.username == "" || values.pass == "") {
                 alert('Data belum lengkap');
             } else {
                 alert('Akun tidak terdaftar');
@@ -40,15 +59,28 @@ const Login = ({navigation}) => {
                         <LogoCrm width={'80%'} />
                     </View>
                     <View style={styles.body}>
-                        <Input label="Username" value={username} onChangeText={(value) => setUsername(value)} autoFocus={true} autoCapitalize="none" />
+                        {/* Form */}
+                        <Formik 
+                            initialValues={{username: "", pass: ""}}
+                            onSubmit={(values, actions) => submit(values, actions)}>
+                            {(props) => (
+                                <View>
+                                    <Input label="Username" value={props.values.username} onChangeText={props.handleChange('username')} autoFocus={true} autoCapitalize="none" />
+                                    <Input label="Password" value={props.values.pass} onChangeText={props.handleChange('pass')} secureTextEntry={true} autoCapitalize="none" />
+                                    <Space height={20} />
+                                    <Button type="primary" onPress={(e) => {e.persist(); props.handleSubmit();}}>Masuk</Button>
+                                </View>
+                            )}
+                        </Formik>
+
+                        {/* <Input label="Username" value={username} onChangeText={(value) => setUsername(value)} autoFocus={true} autoCapitalize="none" />
                         <Input label="Password" value={pass} onChangeText={(value) => setPass(value)} secureTextEntry={true} autoCapitalize="none" />
                         <Space height={20} />
-                        <Button type="primary" onPress={proses}>Masuk</Button>
-                        <Space height={10} />
-                        <Button>Lupa password?</Button>
+                        <Button type="primary" onPress={proses}>Masuk</Button> */}
                     </View>
                     <View style={styles.footer}>
-                        <Button type="secondary">Daftar</Button>
+                        <Space height={10} />
+                        <Button>Lupa password?</Button>
                     </View>
                 </ScrollView>
                 {loading == true && ( <Loading /> )} 
@@ -87,9 +119,6 @@ const styles = StyleSheet.create({
         position: 'absolute'
     },
     footer: {
-        marginTop: 120,
-        paddingVertical: 20,
         paddingHorizontal: 20,
-
     },
 })
