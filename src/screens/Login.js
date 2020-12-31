@@ -9,8 +9,8 @@ import { Formik } from 'formik';
 
 const Login = ({navigation}) => {
     const [loading, setLoading] = useState(false);
-    const [username, setUsername] = useState("");
-    const [pass, setPass] = useState("");
+    // const [username, setUsername] = useState("");
+    // const [pass, setPass] = useState("");
 
     // const proses = () => {
     //     setLoading(true);
