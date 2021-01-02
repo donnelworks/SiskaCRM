@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ScrollView, SafeAreaView, StyleSheet, View, Text, TouchableOpacity, FlatList } from 'react-native';
+import { RefreshControl, ScrollView, SafeAreaView, StyleSheet, View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { Warna } from '../utils/Warna';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import Ripple from 'react-native-material-ripple';
@@ -8,12 +8,84 @@ import axios from 'axios';
 import { Url } from '../utils/Url';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
 
+const Status = ({title, jumlah, icon}) => {
+    return (
+        <View style={styles.status}>
+            <View style={{flex: 2, justifyContent: 'center', paddingLeft: 10}}>
+                <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 18, color: Warna.primary}}>{title}</Text>
+                <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 24, color: Warna.primary}}>{jumlah}</Text>
+            </View>
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                <Icon name={icon} size={50} color={Warna.primary} />
+            </View>
+        </View>
+    )
+}
+
+const Menu = ({title, icon, ...props}) => {
+    return (
+        <Ripple rippleColor={Warna.softDark} style={styles.menu} {...props}>
+            <Icon name={icon} size={30} color={Warna.primary} style={{backgroundColor: Warna.softPrimary, padding: 10, borderRadius: 50/2}} />
+            <Space height={10} />
+            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: Warna.softDark}}>{title}</Text>
+        </Ripple>
+    )
+}
+
+const OpenOpp = ({record, proyek, customer, ...props}) => {
+    return (
+        <Ripple rippleColor={Warna.success} style={styles.openOpp} {...props}>
+            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.success}}>{record}</Text>
+            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: Warna.success}}>{proyek}</Text>
+            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.success, textAlign: 'right'}}>{customer}</Text>
+        </Ripple>
+    )
+}
+
+const QuotOpp = ({record, proyek, customer}) => {
+    return (
+        <Ripple rippleColor={Warna.primary} style={styles.quotOpp}>
+            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.primary}}>{record}</Text>
+            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: Warna.primary}}>{proyek}</Text>
+            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.primary, textAlign: 'right'}}>{customer}</Text>
+        </Ripple>
+    )
+}
+
+const ClosedOpp = ({record, proyek, customer}) => {
+    return (
+        <Ripple rippleColor={Warna.danger} style={styles.closedOpp}>
+            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.danger}}>{record}</Text>
+            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: Warna.danger}}>{proyek}</Text>
+            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.danger, textAlign: 'right'}}>{customer}</Text>
+        </Ripple>
+    )
+}
+
+const LoadingOpp = () => {
+    return (
+        <SkeletonPlaceholder backgroundColor={Warna.skeleton}>
+            <View style={{marginHorizontal: 10, height: 80, width: 280, paddingVertical: 10}}>
+                <View style={{ width: 120, height: 15, borderRadius: 50 }} />
+                <View style={{ width: 180, height: 15, borderRadius: 50, marginTop: 10 }} />
+                <View style={{ width: 100, height: 15, borderRadius: 50, marginTop: 10, alignSelf: 'flex-end' }} />
+            </View>
+        </SkeletonPlaceholder>
+    )
+}
+
+const LoadingStatus = () => {
+    return (
+        <ActivityIndicator size="small" color={Warna.primary} />
+    )
+}
+
 const Home = ({navigation}) => {
     // State
     const [loading, setLoading] = useState(true);
-    const [customer, setCustomer] = useState(0);
-    const [opp, setOpp] = useState(0);
-    const [quotation, setQuotation] = useState(0);
+    const [customer, setCustomer] = useState(LoadingStatus);
+    const [opp, setOpp] = useState(LoadingStatus);
+    const [quotation, setQuotation] = useState(LoadingStatus);
     const [reminder, setReminder] = useState(0);
     const [openOpp, setOpenOpp] = useState([]);
     const [quotOpp, setQuotOpp] = useState([]);
@@ -178,71 +250,7 @@ const Home = ({navigation}) => {
     )
 }
 
-const Status = ({title, jumlah, icon}) => {
-    return (
-        <View style={styles.status}>
-            <View style={{flex: 2, justifyContent: 'center', paddingLeft: 10}}>
-                <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 18, color: Warna.primary}}>{title}</Text>
-                <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 24, color: Warna.primary}}>{jumlah}</Text>
-            </View>
-            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                <Icon name={icon} size={50} color={Warna.primary} />
-            </View>
-        </View>
-    )
-}
 
-const Menu = ({title, icon, ...props}) => {
-    return (
-        <Ripple rippleColor={Warna.softDark} style={styles.menu} {...props}>
-            <Icon name={icon} size={30} color={Warna.primary} style={{backgroundColor: Warna.softPrimary, padding: 10, borderRadius: 50/2}} />
-            <Space height={10} />
-            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 12, color: Warna.softDark}}>{title}</Text>
-        </Ripple>
-    )
-}
-
-const OpenOpp = ({record, proyek, customer, ...props}) => {
-    return (
-        <Ripple rippleColor={Warna.success} style={styles.openOpp} {...props}>
-            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.success}}>{record}</Text>
-            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: Warna.success}}>{proyek}</Text>
-            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.success, textAlign: 'right'}}>{customer}</Text>
-        </Ripple>
-    )
-}
-
-const QuotOpp = ({record, proyek, customer}) => {
-    return (
-        <Ripple rippleColor={Warna.primary} style={styles.quotOpp}>
-            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.primary}}>{record}</Text>
-            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: Warna.primary}}>{proyek}</Text>
-            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.primary, textAlign: 'right'}}>{customer}</Text>
-        </Ripple>
-    )
-}
-
-const ClosedOpp = ({record, proyek, customer}) => {
-    return (
-        <Ripple rippleColor={Warna.danger} style={styles.closedOpp}>
-            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.danger}}>{record}</Text>
-            <Text style={{fontFamily: 'Montserrat-SemiBold', fontSize: 14, color: Warna.danger}}>{proyek}</Text>
-            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 12, color: Warna.danger, textAlign: 'right'}}>{customer}</Text>
-        </Ripple>
-    )
-}
-
-const LoadingOpp = () => {
-    return (
-        <SkeletonPlaceholder backgroundColor={Warna.skeleton}>
-            <View style={{marginHorizontal: 10, height: 80, width: 280, paddingVertical: 10}}>
-                <View style={{ width: 120, height: 15, borderRadius: 50 }} />
-                <View style={{ width: 180, height: 15, borderRadius: 50, marginTop: 10 }} />
-                <View style={{ width: 100, height: 15, borderRadius: 50, marginTop: 10, alignSelf: 'flex-end' }} />
-            </View>
-        </SkeletonPlaceholder>
-    )
-}
 
 export default Home;
 

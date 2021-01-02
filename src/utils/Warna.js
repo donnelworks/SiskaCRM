@@ -7,6 +7,7 @@ const Warna = {
     softDanger: '#FDE4E4',
     dark: '#343A40',
     softDark: '#AAAAAA',
+    lightDark: '#EEEEEE',
     light: '#FFFFFF',
     skeleton: '#E7EDF1',
 }
