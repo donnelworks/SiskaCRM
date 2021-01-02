@@ -7,6 +7,7 @@ import { Space } from '../components';
 import axios from 'axios';
 import { Url } from '../utils/Url';
 import SkeletonPlaceholder from 'react-native-skeleton-placeholder';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Status = ({title, jumlah, icon}) => {
     return (
@@ -90,6 +91,30 @@ const Home = ({navigation}) => {
     const [openOpp, setOpenOpp] = useState([]);
     const [quotOpp, setQuotOpp] = useState([]);
     const [closedOpp, setClosedOpp] = useState([]);
+    const [namaUser, setNamaUser] = useState("");
+    const [levelUser, setLevelUser] = useState("");
+
+    // Hook
+    useEffect(() => {
+        getSession();
+        loadData();
+    }, []);
+
+    // Navigation
+    const pindahScreen = (screen) => {
+        navigation.navigate(screen);
+    }
+
+    // Load user
+    const getSession = async () => {
+        try {
+            const data = await AsyncStorage.getItem('user');
+            const user = JSON.parse(data);
+            setNamaUser(user.nama);
+            setLevelUser(user.level);
+        } catch(err) {
+        }
+    }
 
     // Load data
     const loadData = () => {
@@ -103,18 +128,18 @@ const Home = ({navigation}) => {
             setOpenOpp(res.data.data.load_open_opp);
             setQuotOpp(res.data.data.load_quot_opp);
             setClosedOpp(res.data.data.load_closed_opp);
+        })
+        .catch(err => {
         });
     }
 
-    // Navigation
-    const pindahScreen = (screen) => {
-        navigation.navigate(screen)
+    const clearSession = async () => {
+        try {
+            await AsyncStorage.removeItem('user');
+            navigation.replace('Login');
+        } catch(err) {
+        }
     }
-
-    // Hook
-    useEffect(() => {
-        loadData();
-    }, []);
 
     return (
         <SafeAreaView style={styles.container}>
@@ -124,8 +149,8 @@ const Home = ({navigation}) => {
                 <View style={styles.header}>
                     <View style={styles.navBarWrapper}>
                         <Ripple rippleColor="#fff" style={styles.userWrapper}>
-                            <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 16, marginLeft: 5, color: '#fff'}}>Nama User</Text>
-                            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 14, marginLeft: 5, color: '#fff'}}>Level</Text>
+                            <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 16, marginLeft: 5, color: '#fff'}}>{namaUser}</Text>
+                            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 14, marginLeft: 5, color: '#fff'}}>{levelUser == 1 ? "Manager" : levelUser == 2 ? "Admin" : "Sales"}</Text>
                         </Ripple>
                         <View style={styles.notifWrapper}>
                             <TouchableOpacity>
@@ -138,7 +163,7 @@ const Home = ({navigation}) => {
                             )}
                         </View>
                         <View style={styles.configWrapper}>
-                            <TouchableOpacity>
+                            <TouchableOpacity onPress={() => clearSession()}>
                                 <Icon name="cog-outline" size={23} style={{color: '#fff'}} />
                             </TouchableOpacity>
                         </View>

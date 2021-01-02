@@ -1,14 +1,44 @@
-import React, { useEffect } from 'react';
-import { StatusBar, StyleSheet, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { StatusBar, StyleSheet, Text, View } from 'react-native';
 import Logo from '../assets/images/logo.svg';
 import { Warna } from '../utils/Warna';
+import axios from 'axios';
+import { Url } from '../utils/Url';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Splash = ({navigation}) => {
     useEffect(() => {
-        setTimeout(() => {
+        getSession();
+    }, [])
+
+    const getSession = async () => {
+        try {
+            const data = await AsyncStorage.getItem('user');
+            const user = JSON.parse(data);
+            if (data) {
+                loadData(user.username, user.pass);
+            } else {
+                navigation.replace('Login');
+            }
+        } catch(err) {
+        }
+    }
+    
+    const loadData = (username, pass) => {
+        const data = {
+            username,
+            pass,
+        }
+        axios.post(Url.api + '/login/cek_login', data)
+        .then(res => {
+            console.log(res);
+            navigation.replace('Home');
+        })
+        .catch(err => {
+            console.log(err);
             navigation.replace('Login');
-        },1500);
-    });
+        });
+    }
 
     return (
         <View style={styles.body}>

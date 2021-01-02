@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { BackHandler, ToastAndroid, ActivityIndicator, ScrollView, Keyboard, SafeAreaView, StyleSheet, View, TouchableWithoutFeedback } from 'react-native';
+import { ToastAndroid, ActivityIndicator, ScrollView, Keyboard, SafeAreaView, StyleSheet, View, TouchableWithoutFeedback, Text } from 'react-native';
 import { Button, Input, Space } from '../components';
 import LogoCrm from '../assets/images/logo-crm.svg';
 import axios from 'axios';
@@ -7,6 +7,7 @@ import { Url } from '../utils/Url';
 import { Warna } from '../utils/Warna';
 import { Formik, ErrorMessage } from 'formik';
 import * as yup from 'yup';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Loading = () => {
     return (
@@ -18,75 +19,43 @@ const Loading = () => {
 
 const Login = ({navigation}) => {
     const [loading, setLoading] = useState(false);
-    const [pressBack, setPressBack] = useState(0);
 
-    useEffect(() => {
-        BackHandler.addEventListener('hardwareBackPress', handleBackButton);
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-        }
-    }, [pressBack])
-
-    const handleBackButton = () => {
-        pressBack == 1 ? BackHandler.exitApp() : toastExit();
-        return true;
-    };
-
-    const toastExit = () => {
-        setPressBack(1);
-        showToast();
-        setTimeout(() => {
-            setPressBack(0);
-        }, 3000);
-    };
-
-    const showToast = () => {
-        ToastAndroid.show("Tekan sekali lagi untuk keluar", ToastAndroid.SHORT);
-    };
-
-    // const [username, setUsername] = useState("");
-    // const [pass, setPass] = useState("");
-
-    // const proses = () => {
-    //     setLoading(true);
-    //     const data = { username, pass };
-
-    //     axios.post(Url.api + '/login/proses', data)
-    //     .then(res => {
-    //         setUsername("");
-    //         setPass("");
-    //         setLoading(false);
-    //         navigation.navigate('Home');
-    //     })
-    //     .catch(err => {
-    //         setLoading(false);
-    //         if (username == "" || pass == "") {
-    //             alert('Data belum lengkap');
-    //         } else {
-    //             alert('Akun tidak terdaftar');
-    //         }
-    //     });
-    // }
-
+    // Submit action
     const submit = (values, actions) => {
         setLoading(true);
         axios.post(Url.api + '/login/proses', values)
         .then(res => {
             setLoading(false);
+            setSession(res.data.data);
             actions.resetForm();
-            BackHandler.removeEventListener('hardwareBackPress', handleBackButton);
-            navigation.navigate('Home');
+            navigation.replace('Home');
         })
         .catch(err => {
             setLoading(false);
-            alert('User tidak terdaftar');
+            alert('Maaf, user tidak terdaftar');
         });
     }
 
+    // Set user session
+    const setSession = async (value) => {
+        try {
+            const obj = JSON.stringify(value);
+            await AsyncStorage.setItem('user', obj);
+        } catch(e) {
+        }
+    }
+
+    // Set Rules validation
     const validRules = yup.object({
         username: yup.string().required('Username wajib diisi'),
         pass: yup.string().required('Password wajib diisi')
-    })
+    });
+
+    // Name values
+    const initialValues = {
+        username: "",
+        pass: "",
+    }
 
     return (
         <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
@@ -99,7 +68,7 @@ const Login = ({navigation}) => {
 
                         {/* Form */}
                         <Formik 
-                            initialValues={{username: "", pass: ""}}
+                            initialValues={initialValues}
                             validationSchema={validRules}
                             onSubmit={(values, actions) => submit(values, actions)}>
                             {(props) => (
@@ -132,10 +101,6 @@ const Login = ({navigation}) => {
                             )}
                         </Formik>
 
-                        {/* <Input label="Username" value={username} onChangeText={(value) => setUsername(value)} autoFocus={true} autoCapitalize="none" />
-                        <Input label="Password" value={pass} onChangeText={(value) => setPass(value)} secureTextEntry={true} autoCapitalize="none" />
-                        <Space height={20} />
-                        <Button type="primary" onPress={proses}>Masuk</Button> */}
                     </View>
                     <View style={styles.footer}>
                         <Space height={10} />
