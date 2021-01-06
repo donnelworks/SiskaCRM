@@ -150,7 +150,7 @@ const Home = ({navigation}) => {
                     <View style={styles.navBarWrapper}>
                         <Ripple rippleColor="#fff" style={styles.userWrapper}>
                             <Text style={{fontFamily: 'Montserrat-Bold', fontSize: 16, marginLeft: 5, color: '#fff'}}>{namaUser}</Text>
-                            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 14, marginLeft: 5, color: '#fff'}}>{levelUser == 1 ? "Manager" : levelUser == 2 ? "Admin" : "Sales"}</Text>
+                            <Text style={{fontFamily: 'Montserrat-Medium', fontSize: 14, marginLeft: 5, color: '#fff'}}>{levelUser == 1 ? "Manager" : levelUser == 2 ? "Admin" : levelUser == 3 ? "Sales" : ""}</Text>
                         </Ripple>
                         <View style={styles.notifWrapper}>
                             <TouchableOpacity>
