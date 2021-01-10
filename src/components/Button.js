@@ -38,8 +38,6 @@ const Button = ({type, children, ...props}) => {
             </Ripple>
         ) 
     }
-
-   
 }
 
 export default Button;

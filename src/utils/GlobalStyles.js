@@ -11,7 +11,7 @@ export const GlobalStyle = StyleSheet.create({
     },
     textAvatar: {
         color: Warna.light,
-        fontSize: 24,
+        fontSize: 20,
         fontFamily: 'Montserrat-Medium',
     }
     
