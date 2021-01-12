@@ -6,6 +6,7 @@ import {
     Home, 
     Login, 
     Splash,
+    TambahCustomer,
 } from '../screens';
 
 const Stack = createStackNavigator();
@@ -17,6 +18,7 @@ const Router = () => {
             <Stack.Screen name="Login" component={Login} options={{headerShown: false}} />
             <Stack.Screen name="Home" component={Home} options={{headerShown: false}} />
             <Stack.Screen name="Customer" component={Customer} />
+            <Stack.Screen name="Tambah Customer" component={TambahCustomer} />
         </Stack.Navigator>
     )
 }

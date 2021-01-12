@@ -66,11 +66,6 @@ const Input = ({label, error, touch, ...props}) => {
         <View>
             <Animated.Text style={labelStyle}>{label}</Animated.Text>
             <TextInput style={inputStyle} {...props} onFocus={handleFocus} onBlur={handleBlur} />
-            {/* {props.value != "" && (
-                <TouchableWithoutFeedback>
-                    <Icon name="close-circle" size={20} style={resetStyle} />
-                </TouchableWithoutFeedback>
-            )} */}
             {touch && error ? <Text style={GlobalStyle.textError}>{error}</Text> : null}
         </View>
     )
