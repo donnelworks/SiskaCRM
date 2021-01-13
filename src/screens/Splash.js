@@ -31,7 +31,7 @@ const Splash = ({navigation}) => {
         }
         axios.post(Url.api + '/login/cek_login', data)
         .then(res => {
-            navigation.replace('Home');
+            navigation.replace('Customer');
         })
         .catch(err => {
             navigation.replace('Login');

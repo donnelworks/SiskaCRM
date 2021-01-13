@@ -18,6 +18,8 @@ const Customer = ({navigation}) => {
     const [loadingModal, setLoadingModal] = useState(false);
     const [btnVisible, setBtnVisible] = useState(true);
     const [modalKonfirm, setModalKonfirm] = useState(false);
+    const [idKonfirm, setIdKonfirm] = useState(0);
+    const [loading, setLoading] = useState(false);
 
     const [statusDetail, setStatusDetail] = useState("");
     const [creditDetail, setCreditDetail] = useState("");
@@ -39,7 +41,7 @@ const Customer = ({navigation}) => {
     }, []);
     
     function loadData() {
-        axios.get(Url.api + '/customer/data')
+        axios.get(`${Url.api}/customer/data`)
         .then(res => {
             setDataCustomer(res.data.data);
         });
@@ -67,13 +69,26 @@ const Customer = ({navigation}) => {
         }
     }
 
-    const editData = (map, key) => {
+    const editKonfirm = (map, key) => {
         closeSwipe(map, key);
     }
 
-    const hapusData = (map, key) => {
+    const hapusKonfirm = (map, key) => {
         closeSwipe(map, key);
         setModalKonfirm(true);
+        setIdKonfirm(key);
+    }
+    const hapusData = (id) => {
+        setLoading(true);
+        setModalKonfirm(false);
+        axios.delete(`${Url.api}/customer/data/hapus/${id}`)
+        .then(res => {
+            setLoading(false);
+            loadData();
+        })
+        .catch(err => {
+            setLoading(false);
+        })
     }
 
     const handleBeginScroll = () => {
@@ -91,6 +106,7 @@ const Customer = ({navigation}) => {
             }
         })
         .then(res => {
+            console.log(res);
             setLoadingModal(false);
             setTagDetail(res.data.data);
         })
@@ -127,10 +143,10 @@ const Customer = ({navigation}) => {
     const CustomerList = (data, rowMap) => (
         <SwipeRow disableLeftSwipe={true} leftOpenValue={160}>
             <View style={styles.opsiBack}>
-                <TouchableOpacity style={styles.editWrapper} onPress={() => editData(rowMap, data.item.id_customer)}>
+                <TouchableOpacity style={styles.editWrapper} onPress={() => editKonfirm(rowMap, data.item.id_customer)}>
                     <Icon name="square-edit-outline" size={25} color={Warna.light} />
                 </TouchableOpacity>
-                <TouchableOpacity style={styles.hapusWrapper} onPress={() => hapusData(rowMap, data.item.id_customer)}>
+                <TouchableOpacity style={styles.hapusWrapper} onPress={() => hapusKonfirm(rowMap, data.item.id_customer)}>
                     <Icon name="trash-can-outline" size={25} color={Warna.light} />
                 </TouchableOpacity>
             </View>
@@ -236,8 +252,31 @@ const Customer = ({navigation}) => {
         </View>
     )
 
-    const Loading = () => (
-        <View style={styles.loading}>
+    const ModalKonfirm = ({id}) => (
+        <Modal
+        animationType="fade"
+        transparent={true}
+        visible={modalKonfirm}
+        >
+            <View style={styles.modalWrapper}>
+                <View style={styles.modalBody}>
+                    <Text style={styles.modalTitle}>Konfirmasi</Text>
+                    <Text style={styles.modalText}>Kamu yakin ingin hapus data? </Text>
+                    <View style={styles.btnKonfirmWrapper}>
+                        <View style={{flex: 1, paddingRight: 5}}>
+                            <Button type="primary" onPress={() => hapusData(id)}>Iya</Button>
+                        </View>
+                        <View style={{flex: 1, paddingLeft: 5}}>
+                            <Button type="disabled" onPress={() => setModalKonfirm(false)}>Tidak</Button>
+                        </View>
+                    </View>
+                </View>
+            </View>
+        </Modal>
+    )
+
+    const LoadingModal = () => (
+        <View style={styles.loadingModal}>
             <ActivityIndicator size="large" color={Warna.primary} />
         </View>
     )
@@ -245,6 +284,12 @@ const Customer = ({navigation}) => {
     const TagsList = ({tag}) => (
         <View style={styles.tagsList}>
             <Text style={styles.textTag}>{tag}</Text>
+        </View>
+    )
+
+    const Loading = () => (
+        <View style={styles.loading}>
+            <ActivityIndicator size="large" color={Warna.light} />
         </View>
     )
 
@@ -282,31 +327,12 @@ const Customer = ({navigation}) => {
                 </View>
             }
             >
-            {loadingModal == true ? <Loading /> : <ContentModal />}
+            {loadingModal == true ? <LoadingModal /> : <ContentModal />}
             </Modalize>
             {/* === */}
 
             {/* MODAL CONFIRM */}
-            <Modal
-            animationType="fade"
-            transparent={true}
-            visible={modalKonfirm}
-            >
-                <View style={styles.modalWrapper}>
-                    <View style={styles.modalBody}>
-                        <Text style={styles.modalTitle}>Konfirmasi</Text>
-                        <Text style={styles.modalText}>Kamu yakin ingin hapus data??</Text>
-                        <View style={styles.btnKonfirmWrapper}>
-                            <View style={{flex: 1, paddingRight: 5}}>
-                                <Button type="primary">Iya</Button>
-                            </View>
-                            <View style={{flex: 1, paddingLeft: 5}}>
-                                <Button type="disabled" onPress={() => setModalKonfirm(false)}>Tidak</Button>
-                            </View>
-                        </View>
-                    </View>
-                </View>
-            </Modal>
+            <ModalKonfirm id={idKonfirm} />
             {/* === */}
 
             <FAB
@@ -319,6 +345,8 @@ const Customer = ({navigation}) => {
             iconTextComponent={
             <Icon name="plus" />
             } />
+
+            {loading == true && ( <Loading /> )}
         </SafeAreaView>
     )
 }
@@ -421,7 +449,7 @@ const styles = StyleSheet.create({
         color: Warna.light,
         fontSize: 12,
     },
-    loading: {
+    LoadingModal: {
         flex: 1,
         justifyContent: 'center', 
     },
@@ -462,5 +490,13 @@ const styles = StyleSheet.create({
     },
     btnKonfirmWrapper: {
         flexDirection: 'row',
-    }
+    },
+    loading: {
+        width: '100%',
+        height: '100%', 
+        justifyContent: 'center', 
+        backgroundColor: 'rgba(85, 110, 230, 0.9)', 
+        position: 'absolute',
+        zIndex: 2,
+    },
 })
